@@ -1,6 +1,7 @@
 package main
 
 // https://docs.google.com/spreadsheets/d/1HD-8RW4YBKA1lmwaDveX5Hf-__6UTJ6p7LLoYjqIaho/edit#gid=0
+// go run /home/shane/var/smulliga/source/git/mullikine/google-spreadsheet-cli/main.go --data=/home/shane/notes2018/remote/frontend/wizard/homicides.csv --col=2 --row=2 --sheetid="1HD-8RW4YBKA1lmwaDveX5Hf-__6UTJ6p7LLoYjqIaho" --sheetname="sheetname" --service-creds="/home/shane/notes2018/ws/codelingo/pipeline/automate/codelingo-sheets-1543871274729-1c2d278df245.json"
 
 import (
 	"context"
