@@ -94,7 +94,18 @@ func cliMain(c *cli.Context) error {
 		for j := 0; j < len(record); j++ {
 			cell := record[j]
 			fmt.Printf("%s\n", cell)
-			sheet.Update(i+strconv.Atoi(c.String("row")), j+strconv.Atoi(c.String("col")), cell)
+
+			row, err := strconv.Atoi(c.String("row"))
+			if err != nil {
+				return errors.Trace(err)
+			}
+
+			col, err := strconv.Atoi(c.String("col"))
+			if err != nil {
+				return errors.Trace(err)
+			}
+
+			sheet.Update(i+row, j+col, cell)
 		}
 	}
 
