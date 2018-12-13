@@ -46,13 +46,22 @@ func cliMain(c *cli.Context) error {
 	fmt.Printf("Hello %q", c.Args().Get(0))
 	//fmt.Println("boom! I say!")
 
+	spread, err := spread("1HD-8RW4YBKA1lmwaDveX5Hf-__6UTJ6p7LLoYjqIaho")
+	if err != nil {
+		return nil, errors.Trace(err)
+	}
+
+	//	automatedPipeline, err := spreadsheet.SheetByTitle("Automated Pipeline")
+
+	err := spread.Synchronize()
+	if err != nil {
+		return nil, errors.Trace(err)
+	}
+
 	os.Exit(0)
 
 	// Need to connect spreadsheet to the service account
 	spread, err := spread("1HD-8RW4YBKA1lmwaDveX5Hf-__6UTJ6p7LLoYjqIaho")
-	if err != nil {
-		panic(err)
-	}
 
 	if err != nil {
 		panic(err)
