@@ -11,7 +11,6 @@ import (
 	"io/ioutil"
 
 	"encoding/csv"
-	"github.com/d4l3k/go-pry/pry"
 	"github.com/juju/errors"
 	"github.com/urfave/cli"
 	"golang.org/x/oauth2/google"
@@ -22,7 +21,7 @@ import (
 )
 
 func spread(spreadsheetID string) (spreadsheet.Spreadsheet, error) {
-	service, err := newService("/home/shane/notes2018/ws/codelingo/pipeline/automate/codelingo-sheets-1543871274729-1c2d278df245.json")
+	service, err := newService(c.String("service-creds"))
 	if err != nil {
 		return spreadsheet.Spreadsheet{}, errors.Trace(err)
 	}
@@ -69,23 +68,41 @@ func LoadDataFromCSV(fileName string) (cells [][]string, err error) {
 }
 
 func cliMain(c *cli.Context) error {
-	fmt.Printf("Hello %q", c.Args().Get(0))
+	// fmt.Printf("Hello %q", c.Args().Get(0))
 
-	//fmt.Println("boom! I say!")
+	firstArg := c.Args().Get(0)
 
-	spread, err := spread("1HD-8RW4YBKA1lmwaDveX5Hf-__6UTJ6p7LLoYjqIaho")
+	switch {
+	case  firstArg == "update":
+		return nil
+	}
+
+	spread, err := spread(c.String("sheetid"))
 	if err != nil {
 		return errors.Trace(err)
 	}
 
-	_, err = spread.SheetByTitle("Pipeline")
+	sheet, err := spread.SheetByTitle(c.String("sheetname"))
 	if err != nil {
 		return errors.Trace(err)
 	}
 
-	pry.Pry()
+	m, err := LoadDataFromCSV(c.String("data"))
+	if err != nil {
+		return errors.Trace(err)
+	}
 
-	LoadDataFromCSV("/home/shane/notes2018/remote/frontend/wizard/homicides.csv")
+	for i := 0; i < len(m); i++ {
+		record := m[i]
+		for j := 0; j < len(record); j++ {
+			cell := record[j]
+			fmt.Printf("%s\n", cell)
+			sheet.Update(i, j, cell)
+		}
+	}
+	sheet.Synchronize()
+
+	// fmt.Printf("%s\n", m[76][2])
 
 	// row := 1
 	// column := 2
@@ -125,9 +142,34 @@ func main() {
 
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
-			Name:  "upload",
-			Value: "path/to/my_data.csv",
+			Name:  "sheetid",
+			Value: "1HD-8RW4YBKA1lmwaDveX5Hf-__6UTJ6p7LLoYjqIaho",
+			Usage: "Google Spreadsheets ID (from url)",
+		},
+		cli.StringFlag{
+			Name:  "sheetname",
+			Value: "Pipeline",
+			Usage: "Sheet Name (tab name)",
+		},
+		cli.StringFlag{
+			Name:  "data",
+			Value: "/home/shane/notes2018/remote/frontend/wizard/homicides.csv",
 			Usage: "CSV file for uploading (to replace the contents of a sheet)",
+		},
+		cli.StringFlag{
+			Name:  "col",
+			Value: "0",
+			Usage: "Column offset number (CSV is placed at this column)",
+		},
+		cli.StringFlag{
+			Name:  "row",
+			Value: "0",
+			Usage: "Row offset number (CSV is placed at this row)",
+		},
+		cli.StringFlag{
+			Name:  "service-creds",
+			Value: "/home/shane/notes2018/ws/codelingo/pipeline/automate/codelingo-sheets-1543871274729-1c2d278df245.json",
+			Usage: "Service Account json credentials (Sheet must be shared with the email defined inside this json file)",
 		},
 	}
 
