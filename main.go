@@ -21,7 +21,7 @@ import (
 )
 
 func spread(spreadsheetID string) (spreadsheet.Spreadsheet, error) {
-	service, err := newService("../../client_secret.json")
+	service, err := newService("/home/shane/notes2018/ws/codelingo/pipeline/automate/codelingo-sheets-1543871274729-1c2d278df245.json")
 	if err != nil {
 		return spreadsheet.Spreadsheet{}, errors.Trace(err)
 	}
@@ -56,9 +56,13 @@ func main() {
 		log.Fatal(err)
 	}
 
+	spread, err := spread("1HD-8RW4YBKA1lmwaDveX5Hf-__6UTJ6p7LLoYjqIaho")
+	if err != nil {
+		panic(err)
+	}
+
 	os.Exit(0)
 
-	spread, err := spread("")
 	if err != nil {
 		panic(err)
 	}
