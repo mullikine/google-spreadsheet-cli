@@ -42,26 +42,17 @@ func newService(creds string) (*spreadsheet.Service, error) {
 	return spreadsheet.NewServiceWithClient(client), nil
 }
 
-func main() {
-	app := cli.NewApp()
-	app.Name = "gss"
-	app.Usage = "Interact with Google Spreadsheets"
-	app.Action = func(c *cli.Context) error {
-		fmt.Println("boom! I say!")
-		return nil
-	}
+func cliMain(c *cli.Context) error {
+	fmt.Printf("Hello %q", c.Args().Get(0))
+	//fmt.Println("boom! I say!")
 
-	err := app.Run(os.Args)
-	if err != nil {
-		log.Fatal(err)
-	}
+	os.Exit(0)
 
+	// Need to connect spreadsheet to the service account
 	spread, err := spread("1HD-8RW4YBKA1lmwaDveX5Hf-__6UTJ6p7LLoYjqIaho")
 	if err != nil {
 		panic(err)
 	}
-
-	os.Exit(0)
 
 	if err != nil {
 		panic(err)
@@ -94,6 +85,36 @@ func main() {
 		panic(errors.ErrorStack(err))
 	}
 
+	return nil
+}
+
+func main() {
+	app := cli.NewApp()
+	app.Name = "gss"
+	app.Usage = "Interact with Google Spreadsheets"
+
+	app.Action = cliMain
+
+	// app.Action = func(c *cli.Context) error {
+	// 	fmt.Printf("Hello %q", c.Args().Get(0))
+	// 	//fmt.Println("boom! I say!")
+	// 	return nil
+	// }
+
+	app.Flags = []cli.Flag{
+		cli.StringFlag{
+			Name:  "upload",
+			Value: "path/to/my_data.csv",
+			Usage: "CSV file for uploading (to replace the contents of a sheet)",
+		},
+	}
+
+	err := app.Run(os.Args)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	os.Exit(0)
 }
 
 func keyBenefitData(spread spreadsheet.Spreadsheet, keyBenefits []string) (map[string]int, error) {
