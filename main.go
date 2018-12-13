@@ -5,16 +5,15 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"io/ioutil"
 
 	"encoding/csv"
+	"github.com/codelingo/lingo/app/util"
 	"github.com/juju/errors"
 	"github.com/urfave/cli"
 	"golang.org/x/oauth2/google"
 	"gopkg.in/Iwark/spreadsheet.v2"
 	"io"
-	"log"
 	"os"
 	"strconv"
 )
@@ -61,26 +60,19 @@ func main() {
 
 	err := app.Run(os.Args)
 	if err != nil {
-		log.Fatal(err)
+		util.FatalOSErr(err)
 	}
 
 	os.Exit(0)
 }
 
 func cliMain(c *cli.Context) error {
-	firstArg := c.Args().Get(0)
-
-	switch {
-	case firstArg == "update":
-		return nil
-	}
-
-	spread, err := spread(c.String("sheetid"), c.String("service-creds"))
+	sheetCollection, err := connectToSheets(c.String("sheetid"), c.String("service-creds"))
 	if err != nil {
 		return errors.Trace(err)
 	}
 
-	sheet, err := spread.SheetByTitle(c.String("sheetname"))
+	sheet, err := sheetCollection.SheetByTitle(c.String("sheetname"))
 	if err != nil {
 		return errors.Trace(err)
 	}
@@ -94,7 +86,6 @@ func cliMain(c *cli.Context) error {
 		record := m[i]
 		for j := 0; j < len(record); j++ {
 			cell := record[j]
-			fmt.Printf("%s\n", cell)
 
 			row, err := strconv.Atoi(c.String("row"))
 			if err != nil {
@@ -115,7 +106,7 @@ func cliMain(c *cli.Context) error {
 	return nil
 }
 
-func spread(spreadsheetID string, creds string) (spreadsheet.Spreadsheet, error) {
+func connectToSheets(spreadsheetID string, creds string) (spreadsheet.Spreadsheet, error) {
 	service, err := newService(creds)
 	if err != nil {
 		return spreadsheet.Spreadsheet{}, errors.Trace(err)
@@ -140,8 +131,7 @@ func newService(creds string) (*spreadsheet.Service, error) {
 func LoadDataFromCSV(fileName string) (cells [][]string, err error) {
 	file, err := os.Open(fileName)
 	if err != nil {
-		fmt.Println("Error:", err)
-		return nil, err
+		return nil, errors.Trace(err)
 	}
 	defer file.Close()
 
@@ -152,8 +142,7 @@ func LoadDataFromCSV(fileName string) (cells [][]string, err error) {
 		if err == io.EOF {
 			break
 		} else if err != nil {
-			fmt.Println("Error:", err)
-			return nil, err
+			return nil, errors.Trace(err)
 		}
 
 		cells = append(cells, record)
