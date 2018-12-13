@@ -1,5 +1,10 @@
 package main
 
+// https://docs.google.com/spreadsheets/d/1HD-8RW4YBKA1lmwaDveX5Hf-__6UTJ6p7LLoYjqIaho/edit#gid=0
+
+// Spreadsheet ID:
+// 1HD-8RW4YBKA1lmwaDveX5Hf-__6UTJ6p7LLoYjqIaho
+
 import (
 	"context"
 	"fmt"
@@ -8,9 +13,11 @@ import (
 	"strings"
 
 	"github.com/juju/errors"
+	"github.com/urfave/cli"
 	"golang.org/x/oauth2/google"
 	"gopkg.in/Iwark/spreadsheet.v2"
-	"gopkg.in/urfave/cli.v2" // imports as package "cli"
+	"log"
+	"os"
 )
 
 func spread(spreadsheetID string) (spreadsheet.Spreadsheet, error) {
@@ -36,10 +43,20 @@ func newService(creds string) (*spreadsheet.Service, error) {
 }
 
 func main() {
-	err := cli.NewApp().Run(os.Args)
+	app := cli.NewApp()
+	app.Name = "gss"
+	app.Usage = "Interact with Google Spreadsheets"
+	app.Action = func(c *cli.Context) error {
+		fmt.Println("boom! I say!")
+		return nil
+	}
+
+	err := app.Run(os.Args)
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	os.Exit(0)
 
 	spread, err := spread("")
 	if err != nil {
