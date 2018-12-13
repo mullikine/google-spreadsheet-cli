@@ -10,6 +10,7 @@ import (
 	"github.com/juju/errors"
 	"golang.org/x/oauth2/google"
 	"gopkg.in/Iwark/spreadsheet.v2"
+	"gopkg.in/urfave/cli.v2" // imports as package "cli"
 )
 
 func spread(spreadsheetID string) (spreadsheet.Spreadsheet, error) {
@@ -35,6 +36,11 @@ func newService(creds string) (*spreadsheet.Service, error) {
 }
 
 func main() {
+	err := cli.NewApp().Run(os.Args)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	spread, err := spread("")
 	if err != nil {
 		panic(err)
