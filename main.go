@@ -38,7 +38,7 @@ func main() {
 		},
 		cli.StringFlag{
 			Name:  "data",
-			Value: "/home/shane/notes2018/remote/frontend/wizard/homicides.csv",
+			Value: "",
 			Usage: "CSV file for uploading (to replace the contents of a sheet)",
 		},
 		cli.StringFlag{
@@ -77,7 +77,34 @@ func cliMain(c *cli.Context) error {
 		return errors.Trace(err)
 	}
 
-	m, err := LoadDataFromCSV(c.String("data"))
+	csvPath := c.String("data")
+
+	if len(csvPath) == 0 {
+		// Get the sheet, rather that write to it if no CSV path was provided
+
+		w := csv.NewWriter(os.Stdout)
+		records := [][]string{}
+
+		for _, r := range sheet.Rows {
+			cells := []string{}
+			for _, c := range r {
+				cells = append(cells, c.Value)
+
+			}
+			records = append(records, cells)
+			//fmt.Printf("%+v\n", records) // output for debug
+		}
+
+		w.WriteAll(records) // calls Flush internally
+
+		if err := w.Error(); err != nil {
+			return errors.Trace(err)
+		}
+
+		os.Exit(0)
+	}
+
+	m, err := LoadDataFromCSV(csvPath)
 	if err != nil {
 		return errors.Trace(err)
 	}
